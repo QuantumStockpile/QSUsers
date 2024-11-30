@@ -1,7 +1,6 @@
-from fastapi import APIRouter, responses
+from fastapi import APIRouter
 
-from v1.core import settings
-from v1.applications.misc import schemas
+from v1.settings import settings
 
 __tags__ = ["misc"]
 __prefix__ = ""
@@ -9,9 +8,9 @@ __prefix__ = ""
 router = APIRouter()
 
 
-@router.get("/api-info", response_model=schemas.InfoResponse)
+@router.get("/api-info")
 async def get_api_info():
-    return schemas.InfoResponse(
+    return dict(
         api_version=settings.api.version,
         build_version=settings.api.build_version
     )

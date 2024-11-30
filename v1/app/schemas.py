@@ -1,6 +1,7 @@
-import datetime
-
 from pydantic import BaseModel, constr, EmailStr
+from tortoise.contrib.pydantic import pydantic_model_creator
+
+from .models import User
 
 
 class UserPayload(BaseModel):
@@ -14,15 +15,14 @@ class CredentialsRequest(BaseModel):
     password: constr(min_length=8)
 
 
-class UserResponse(BaseModel):
-    id: int
-    username: str
+UserSchema = pydantic_model_creator(User)
+
+
+class TokenData(BaseModel):
     email: EmailStr
-    password_hash: str
-    is_active: str
-    created_at: datetime.datetime
+    scopes: list[str]
 
 
-class TokenResponse(BaseModel):
+class TokenSchema(BaseModel):
     access_token: str
     token_type: str

@@ -1,31 +1,39 @@
-from fastapi import APIRouter, HTTPException, status, Request
+from typing import Annotated
 
-from v1.applications.user import schemas, UserCRUD
-from v1.core import errors
+from fastapi import APIRouter, HTTPException, status, Request
+from fastapi.params import Security
+
+from v1.app import schemas, UserCRUD, User
 
 __tags__ = ["user"]
 __prefix__ = "/users"
 
+from v1.app.schemas import UserSchema
+
+from v1.dependencies import get_current_active_user
+
 router = APIRouter()
 
 
-@router.get("/", response_model=list[schemas.UserResponse])
-async def get_users(request: Request):
+@router.get("/")
+async def get_users(_: Annotated[User, Security(get_current_active_user, scopes=["users:get"])]) -> UserSchema:
     return await UserCRUD.get_all()
 
 
-@router.post("/", response_model=schemas.UserResponse)
-async def create_user(payload: schemas.UserPayload):
+@router.post("/")
+async def create_user(payload: schemas.UserPayload) -> UserSchema:
     """
-    Creating user in the database. Payload must contains **username**, **email** and **password**
+    Creating user in the database. Payload must contain **username**, **email** and **password**
 
     :param payload: Payload for user.
     :return: None
     """
-    try:
-        return await UserCRUD.create(payload)
-    except errors.UserAlreadyExists:
+    user, is_created = await UserCRUD.create(payload)
+
+    if is_created:
+        return user
+    else:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Пользователь уже существует."
+            detail="User already exist."
         )

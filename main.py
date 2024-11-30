@@ -5,14 +5,33 @@ import uvicorn as uvicorn
 from fastapi import FastAPI
 from tortoise.contrib.fastapi import register_tortoise
 
-from v1.core.settings import settings
+from v1.settings import settings
 
 DB_URL_FMT = "{driver}://{user}:{password}@{host}:{port}/{database}"
 
 application = FastAPI(
     title=settings.api.title,
-    version=f"{settings.api.version}.{settings.api.build_version}"
+    version=f"{settings.api.version}.{settings.api.build_version}",
+    root_path="/v1"
 )
+
+db = settings.db
+TORTOISE_CONFIG = {
+    "connections": {"default": DB_URL_FMT.format(
+            driver=db.driver,
+            user=db.user,
+            password=db.password,
+            host=db.host,
+            port=db.port,
+            database=db.database
+        )},
+    "apps": {
+        "models": {
+            "models": ['v1.app.models', "aerich.models"],
+            "default_connection": "default",
+        },
+    },
+}
 
 
 def configure_tortoise(app: FastAPI):
@@ -22,26 +41,9 @@ def configure_tortoise(app: FastAPI):
     :param app: Instance of FastAPI class
     :return:
     """
-    db = settings.db
-    models = [
-        f'v1.applications.{model_dir}.models'
-        for model_dir in os.listdir(settings.api.version_path / "applications")
-    ]
-    models.append("aerich.models")
-
     register_tortoise(
         app,
-        db_url=DB_URL_FMT.format(
-            driver=db.driver,
-            user=db.user,
-            password=db.password,
-            host=db.host,
-            port=db.port,
-            database=db.database
-        ),
-        modules={
-            'models': models
-        },
+        config=TORTOISE_CONFIG,
         generate_schemas=True,
         add_exception_handlers=True,
     )
