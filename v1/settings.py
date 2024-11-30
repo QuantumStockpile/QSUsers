@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from pydantic import Field
 from pydantic_settings import BaseSettings
 
 ENVS_PATH = Path("env")
@@ -12,7 +13,7 @@ __all__ = [
 # noinspection PyUnboundLocalVariable
 class _DBSettings(BaseSettings):
     driver: str
-    user: str
+    user: str = Field(alias="db_user")
     password: str
     host: str
     port: int
