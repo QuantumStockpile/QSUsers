@@ -16,7 +16,7 @@ router = APIRouter()
 
 
 @router.get("/")
-async def get_users(_: Annotated[User, Security(get_current_active_user, scopes=["users:get"])]) -> UserSchema:
+async def get_users(_: Annotated[User, Security(get_current_active_user, scopes=["users:read"])]) -> UserSchema:
     return await UserCRUD.get_all()
 
 
