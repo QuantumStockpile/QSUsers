@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, status, Request
+from fastapi import APIRouter, HTTPException, status
 from fastapi.params import Security
 
 from v1.app import schemas, UserCRUD, User

@@ -2,3 +2,6 @@
 tortoise_orm = "main.TORTOISE_CONFIG"
 location = "./migrations"
 src_folder = "./."
+
+[tool.pyright]
+reportInvalidTypeForm = "none"

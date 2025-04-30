@@ -16,5 +16,5 @@ class User(AbstractModel):
     is_active = fields.BooleanField()
     type = fields.CharEnumField(UserType, default=UserType.DEFAULT)
 
-    class Meta:
+    class Meta:  # type: ignore
         table = "users"

@@ -1,4 +1,5 @@
-env/*.env
+env/db.env
+env/security.env
 
 # Byte-compiled  / optimized / DLL files
 __pycache__/
