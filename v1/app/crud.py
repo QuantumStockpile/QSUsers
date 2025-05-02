@@ -10,7 +10,7 @@ class UserCRUD:
 
     @classmethod
     async def get_by_email(cls, email: str):
-        return await cls.user.get(email=email)
+        return await cls.user.get_or_none(email=email)
 
     @classmethod
     async def create(cls, payload: schemas.UserPayload) -> tuple[models.User, bool]:

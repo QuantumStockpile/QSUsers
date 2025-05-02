@@ -12,22 +12,24 @@ DB_URL_FMT = "{driver}://{user}:{password}@{host}:{port}/{database}"
 application = FastAPI(
     title=settings.api.title,
     version=f"{settings.api.version}.{settings.api.build_version}",
-    root_path="/v1"
+    root_path="/v1",
 )
 
 db = settings.db
 TORTOISE_CONFIG = {
-    "connections": {"default": DB_URL_FMT.format(
+    "connections": {
+        "default": DB_URL_FMT.format(
             driver=db.driver,
             user=db.user,
             password=db.password,
             host=db.host,
             port=db.port,
-            database=db.database
-        )},
+            database=db.database,
+        )
+    },
     "apps": {
         "models": {
-            "models": ['v1.app.models', "aerich.models"],
+            "models": ["v1.app.models", "aerich.models"],
             "default_connection": "default",
         },
     },
@@ -61,7 +63,9 @@ def include_routers(app: FastAPI):
         if module_name.startswith("_") or not module_name.endswith(".py"):
             continue
 
-        module = importlib.import_module(f"v1.routers.{module_name.removesuffix('.py')}")
+        module = importlib.import_module(
+            f"v1.routers.{module_name.removesuffix('.py')}"
+        )
 
         app.include_router(
             module.router, tags=module.__tags__, prefix=module.__prefix__
@@ -73,4 +77,4 @@ include_routers(application)
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:application", host="0.0.0.0", port=8001, reload=True)
+    uvicorn.run("main:application", host="0.0.0.0", port=8000, reload=True)
