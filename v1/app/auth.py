@@ -6,12 +6,12 @@ import jwt
 from fastapi.security import (
     OAuth2PasswordBearer,
 )
-from passlib.context import CryptContext
+import bcrypt
 
 from v1.settings import settings
 
 SECRET_KEY, ALGORITHM = settings.security.secret_key, settings.security.algorithm
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="token",
     scopes={
@@ -22,11 +22,16 @@ oauth2_scheme = OAuth2PasswordBearer(
 
 
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    pwd_bytes = password.encode("utf-8")
+    salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(password=pwd_bytes, salt=salt)
+    return hashed_password.decode("utf-8")
 
 
-def verify_password(password: str, hashed: str) -> bool:
-    return pwd_context.verify(password, hashed)
+def verify_password(password: str, hash: str) -> bool:
+    password_enc = password.encode("utf-8")
+    hash_enc = hash.encode("utf-8")
+    return bcrypt.checkpw(password_enc, hash_enc)
 
 
 def create_access_token(

@@ -20,6 +20,8 @@ class UserCRUD:
         """
         dump = payload.model_dump()
 
-        p_hash = auth.hash_password(dump.pop("password"))
+        dump["password_hash"] = auth.hash_password(dump.pop("password"))
+        dump["is_active"] = True
+        email = dump.pop("email")
 
-        return await cls.user.get_or_create(**dump, password_hash=p_hash, is_active=True)
+        return await cls.user.get_or_create(dump, email=email)
