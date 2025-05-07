@@ -10,14 +10,14 @@ __prefix__ = "/users"
 
 from v1.app.schemas import UserSchema
 
-from v1.dependencies import get_current_active_user
+from v1.dependencies import get_current_user
 
 router = APIRouter()
 
 
 @router.get("/")
 async def get_users(
-    _: Annotated[User, Security(get_current_active_user, scopes=["users:read"])],
+    _: Annotated[User, Security(get_current_user, scopes=["users:read"])],
 ) -> list[UserSchema]:
     return await UserCRUD.get_all()
 
