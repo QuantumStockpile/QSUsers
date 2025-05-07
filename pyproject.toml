@@ -1,3 +1,24 @@
+[project]
+name = "usersms"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "aerich==0.7.2",
+    "asyncpg==0.30.0",
+    "bcrypt==4.2.1",
+    "fastapi==0.112.4",
+    "ms-core",
+    "passlib==1.7.4",
+    "pydantic-settings==2.6.1",
+    "pydantic[dotenv,email]==2.10.2",
+    "pyjwt==2.10.1",
+    "python-multipart==0.0.18",
+    "tortoise-orm==0.21.7",
+    "uvicorn==0.32.1",
+]
+
 [tool.aerich]
 tortoise_orm = "main.TORTOISE_CONFIG"
 location = "./migrations"
@@ -5,3 +26,6 @@ src_folder = "./."
 
 [tool.pyright]
 reportInvalidTypeForm = "none"
+
+[tool.uv.sources]
+ms-core = { url = "https://github.com/HexChap/MSCore/archive/master.zip" }

@@ -1,0 +1,25 @@
+env/db.env.example
+env/security.env.example
+
+migrations/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+venv/
+.venv/
+
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Miscellaneous
+*.log
+*.pid
