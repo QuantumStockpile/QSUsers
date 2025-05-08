@@ -7,7 +7,6 @@ from tortoise.contrib.fastapi import register_tortoise
 
 from v1.settings import settings
 
-DB_URL_FMT = "{driver}://{user}:{password}@{host}:{port}/{database}"
 
 application = FastAPI(
     title=settings.api.title,
@@ -15,18 +14,8 @@ application = FastAPI(
     root_path="/v1",
 )
 
-db = settings.db
 TORTOISE_CONFIG = {
-    "connections": {
-        "default": DB_URL_FMT.format(
-            driver=db.driver,
-            user=db.user,
-            password=db.password,
-            host=db.host,
-            port=db.port,
-            database=db.database,
-        )
-    },
+    "connections": {"default": os.environ["DATABASE_URL"]},
     "apps": {
         "models": {
             "models": ["v1.app.models", "aerich.models"],
