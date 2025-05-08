@@ -57,4 +57,4 @@ docker run -e DATABASE_URL=asyncpg://user:password@host:port/dbname your_image_n
 
 ---
 
-Ensure your machine has Python 3.9+ installed for compatibility with modern `uv` and FastAPI dependencies.
+Ensure your machine has Python 3.13 installed for compatibility with modern `uv` and FastAPI dependencies.
