@@ -1,5 +1,6 @@
 env/db.env.example
 env/security.env.example
+env/security.env
 
 migrations/
 

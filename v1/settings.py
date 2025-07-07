@@ -9,9 +9,9 @@ __all__ = ["settings"]
 
 
 class _SecuritySettings(BaseSettings):
-    access_token_expire_minutes: int
-    secret_key: str
-    algorithm: str
+    access_token_expire_minutes: int = Field(alias="ACCESS_TOKEN_EXPIRE_MINUTES")
+    secret_key: str = Field(alias="JWT_SECRET_KEY")
+    algorithm: str = Field(alias="JWT_ALGORITHM")
 
 
 # noinspection PyUnboundLocalVariable
@@ -25,6 +25,7 @@ class _APISettings(BaseSettings):
 class _Settings(BaseSettings):
     security: _SecuritySettings
     api: _APISettings
+    db_url: str = Field(alias="DATABASE_URL")
 
 
 _security_settings = _SecuritySettings(_env_file=ENVS_PATH / "security.env")  # type: ignore

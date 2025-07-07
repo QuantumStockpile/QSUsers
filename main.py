@@ -15,7 +15,7 @@ application = FastAPI(
 )
 
 TORTOISE_CONFIG = {
-    "connections": {"default": os.environ["DATABASE_URL"]},
+    "connections": {"default": settings.db_url},
     "apps": {
         "models": {
             "models": ["v1.app.models", "aerich.models"],
