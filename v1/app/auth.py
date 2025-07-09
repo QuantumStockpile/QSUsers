@@ -1,6 +1,5 @@
 import datetime as dt
 from datetime import datetime, timedelta
-from typing import Union
 
 import jwt
 from fastapi.security import (
@@ -34,13 +33,24 @@ def verify_password(password: str, hash: str) -> bool:
     return bcrypt.checkpw(password_enc, hash_enc)
 
 
-def create_access_token(
-    data: dict, expires_delta: Union[timedelta, None] = None
-) -> str:
+def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
     to_encode = data.copy()
     expire = datetime.now(dt.UTC) + (
         expires_delta if expires_delta else timedelta(minutes=60 * 60)
     )
+    to_encode.update({"exp": expire, "token_type": "access"})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+
+def create_refresh_token(email: str, expires_delta: timedelta | None = None) -> str:
+    to_encode: dict[str, str | datetime] = {"sub": email, "token_type": "refresh"}
+    expire = datetime.now(dt.UTC) + (
+        expires_delta
+        if expires_delta
+        else timedelta(days=settings.security.refresh_token_expire_days)
+    )
     to_encode["exp"] = expire
 
-    return jwt.encode(to_encode, SECRET_KEY)
+    return jwt.encode(
+        to_encode, settings.security.refresh_secret_key, algorithm=ALGORITHM
+    )

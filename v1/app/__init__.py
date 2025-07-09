@@ -1,2 +1,3 @@
-from .crud import UserCRUD
-from .models import User
+from .crud import RoleCRUD, UserCRUD
+from .models import User, Role
+

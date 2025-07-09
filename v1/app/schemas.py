@@ -1,7 +1,7 @@
 from pydantic import BaseModel, constr, EmailStr
 from tortoise.contrib.pydantic import pydantic_model_creator
 
-from .models import User
+from .models import Role, User
 
 
 class UserPayload(BaseModel):
@@ -10,12 +10,19 @@ class UserPayload(BaseModel):
     password: constr(min_length=8)
 
 
+UserSchema = pydantic_model_creator(User)
+
+
+class RolePayload(BaseModel):
+    description: str
+
+
+RoleSchema = pydantic_model_creator(Role)
+
+
 class CredentialsRequest(BaseModel):
     email: EmailStr
     password: constr(min_length=8)
-
-
-UserSchema = pydantic_model_creator(User)
 
 
 class TokenData(BaseModel):
@@ -25,4 +32,9 @@ class TokenData(BaseModel):
 
 class TokenSchema(BaseModel):
     access_token: str
+    refresh_token: str
     token_type: str
+
+
+class RefreshTokenSchema(BaseModel):
+    refresh_token: str

@@ -4,23 +4,16 @@ from typing import Annotated
 from fastapi import APIRouter, HTTPException, Response, Depends, status
 from fastapi.params import Security
 from fastapi.security import OAuth2PasswordRequestForm
+import jwt
 
 from v1.app import UserCRUD, auth, schemas
-from v1.app.models import UserType, User
+from v1.app.models import User
 from v1.dependencies import get_current_active_user
 from v1.settings import settings
 
 __tags__ = ["auth"]
 __prefix__ = ""
-user_type_to_scopes = {
-    UserType.DEFAULT: {
-        "users:me",
-    },
-    UserType.ADMIN: {
-        "users:me",
-        "users:read",
-    },
-}
+
 
 router = APIRouter()
 
@@ -40,35 +33,72 @@ async def login_for_token(
             status_code=status.HTTP_400_BAD_REQUEST, detail="The password is incorrect"
         )
 
-    scopes = form_data.scopes if form_data.scopes else ["users:me"]
-    allowed_scopes = user_type_to_scopes[user.type]
-    print(allowed_scopes)
-    print(user.type)
-    print(UserType.ADMIN)
-    if not set(form_data.scopes).issubset(allowed_scopes):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={
-                "message": "Not enough permissions",
-                "allowed_scopes": " ".join(allowed_scopes),
-            },
-            headers={"WWW-Authenticate": f"bearer"},
-        )
+    access_token = auth.create_access_token(
+        data={"sub": user.email},
+        expires_delta=timedelta(minutes=settings.security.access_token_expire_minutes),
+    )
 
-    access_token_expires = timedelta(
-        minutes=settings.security.access_token_expire_minutes
+    refresh_token = auth.create_refresh_token(
+        email=user.email,
+        expires_delta=timedelta(days=settings.security.refresh_token_expire_days),
     )
-    token = auth.create_access_token(
-        data={"sub": user.email, "scopes": scopes}, expires_delta=access_token_expires
-    )
+
     response.set_cookie(
         "Authorization",
-        f"Bearer {token}",
-        expires=settings.security.access_token_expire_minutes,
+        f"Bearer {access_token}",
+        max_age=settings.security.access_token_expire_minutes * 60,
         httponly=True,
     )
 
-    return schemas.TokenSchema(access_token=token, token_type="bearer")
+    return schemas.TokenSchema(
+        access_token=access_token, refresh_token=refresh_token, token_type="bearer"
+    )
+
+
+@router.post("/refresh")
+async def refresh_token(
+    payload: schemas.RefreshTokenSchema, response: Response
+) -> schemas.TokenSchema:
+    try:
+        refresh_payload = jwt.decode(
+            payload.refresh_token,
+            settings.security.refresh_secret_key,
+            algorithms=[settings.security.algorithm],
+        )
+        if refresh_payload.get("token_type") != "refresh":
+            raise HTTPException(status_code=400, detail="Invalid token type")
+
+        email = refresh_payload.get("sub")
+        if not email:
+            raise HTTPException(status_code=400, detail="Invalid token")
+
+        user = await UserCRUD.get_by_email(email)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        access_token = auth.create_access_token(
+            data={"sub": user.email},
+            expires_delta=timedelta(
+                minutes=settings.security.access_token_expire_minutes
+            ),
+        )
+
+        response.set_cookie(
+            "Authorization",
+            f"Bearer {access_token}",
+            max_age=settings.security.access_token_expire_minutes * 60,
+            httponly=True,
+        )
+
+        return schemas.TokenSchema(
+            access_token=access_token,
+            refresh_token=payload.refresh_token,
+            token_type="bearer",
+        )
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Refresh token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid refresh token")
 
 
 @router.get("/logout")

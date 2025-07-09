@@ -10,7 +10,11 @@ __all__ = ["settings"]
 
 class _SecuritySettings(BaseSettings):
     access_token_expire_minutes: int = Field(alias="ACCESS_TOKEN_EXPIRE_MINUTES")
-    secret_key: str = Field(alias="JWT_SECRET_KEY")
+    refresh_token_expire_days: int = Field(
+        alias="REFRESH_TOKEN_EXPIRE_DAYS", default=7
+    )  # New
+    secret_key: str = Field(alias="JWT_ACCESS_SECRET_KEY")
+    refresh_secret_key: str = Field(alias="JWT_REFRESH_SECRET_KEY")  # New
     algorithm: str = Field(alias="JWT_ALGORITHM")
 
 
@@ -31,4 +35,4 @@ class _Settings(BaseSettings):
 _security_settings = _SecuritySettings(_env_file=ENVS_PATH / "security.env")  # type: ignore
 _api_settings = _APISettings(_env_file=ENVS_PATH / "api.env")  # type: ignore
 
-settings = _Settings(security=_security_settings, api=_api_settings)
+settings = _Settings(security=_security_settings, api=_api_settings)  # type: ignore
