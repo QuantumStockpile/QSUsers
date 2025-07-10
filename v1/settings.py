@@ -1,11 +1,13 @@
 from pathlib import Path
+import logging
 
 from pydantic import Field
 from pydantic_settings import BaseSettings
 
 ENVS_PATH = Path("env")
+logger = logging.getLogger("uvicorn")
 
-__all__ = ["settings"]
+__all__ = ["settings", "logger"]
 
 
 class _SecuritySettings(BaseSettings):
@@ -30,6 +32,7 @@ class _Settings(BaseSettings):
     security: _SecuritySettings
     api: _APISettings
     db_url: str = Field(alias="DATABASE_URL")
+    is_prod: str = Field(alias="IS_PRODUCTION")
 
 
 _security_settings = _SecuritySettings(_env_file=ENVS_PATH / "security.env")  # type: ignore
