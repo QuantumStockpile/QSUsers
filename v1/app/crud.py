@@ -13,19 +13,25 @@ class UserCRUD:
         return await cls.user.get_or_none(email=email)
 
     @classmethod
-    async def create(cls, payload: schemas.UserPayload) -> tuple[models.User, bool]:
+    async def create(
+        cls, payload: schemas.UserPayload, is_admin: bool = False
+    ) -> tuple[models.User, bool]:
         """
         :param payload: Sign up payload
         :return: None
         """
-        if not (user_role := await RoleCRUD.get_by_desc("user")):
-            raise Exception("Unable to find role with description `role`")
+        if is_admin:
+            if not (role := await RoleCRUD.get_by_desc("admin")):
+                raise Exception("Unable to find role with description `admin`")
+        else:
+            if not (role := await RoleCRUD.get_by_desc("user")):
+                raise Exception("Unable to find role with description `role`")
 
         dump = payload.model_dump()
 
         dump["password_hash"] = auth.hash_password(dump.pop("password"))
         dump["is_active"] = True
-        dump["role_id"] = user_role.id
+        dump["role_id"] = role.id
         email = dump.pop("email")
 
         return await cls.user.get_or_create(dump, email=email)

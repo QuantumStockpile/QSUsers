@@ -32,7 +32,7 @@ class _Settings(BaseSettings):
     security: _SecuritySettings
     api: _APISettings
     db_url: str = Field(alias="DATABASE_URL")
-    is_prod: str = Field(alias="IS_PRODUCTION")
+    is_prod: bool = Field(alias="IS_PRODUCTION")
 
 
 _security_settings = _SecuritySettings(_env_file=ENVS_PATH / "security.env")  # type: ignore

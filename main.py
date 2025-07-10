@@ -5,7 +5,9 @@ import uvicorn as uvicorn
 from fastapi import FastAPI
 from tortoise.contrib.fastapi import register_tortoise
 
-from v1.settings import settings
+from v1.app.schemas import UserPayload
+from v1.settings import settings, logger
+from v1.app import UserCRUD, Role
 
 
 application = FastAPI(
@@ -63,6 +65,27 @@ def include_routers(app: FastAPI):
 
 configure_tortoise(application)
 include_routers(application)
+
+
+@application.on_event("startup")  # if using RegisterTortoise
+async def seed():
+    roles = ["user", "admin"]
+    admin = {"username": "admin", "email": "admin@example.com", "password": "admin123"}
+
+    for r in roles:
+        role, created = await Role.get_or_create(
+            description=r, defaults={"description": r}
+        )
+        if created:
+            logger.info(f"Seeded default role: {role.description}")
+
+    if settings.is_prod:
+        return
+
+    _, created = await UserCRUD.create(UserPayload(**admin), is_admin=True)
+    if created:
+        logger.info(f"Seeded non-prod admin.")
+
 
 # if __name__ == "__main__":
 #     uvicorn.run("main:application", host="0.0.0.0", port=8000, reload=True)
