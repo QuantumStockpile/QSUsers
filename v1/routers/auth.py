@@ -34,7 +34,7 @@ async def login_for_token(
         )
 
     access_token = auth.create_access_token(
-        data={"sub": user.email},
+        data={"sub": user.email, "role": (await user.role).id},
         expires_delta=timedelta(minutes=settings.security.access_token_expire_minutes),
     )
 
