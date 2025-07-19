@@ -210,7 +210,7 @@ dependencies = [
     { name = "multimethod" },
     { name = "tortoise-orm", extra = ["asyncpg"] },
 ]
-sdist = { hash = "sha256:d1c1077c42cfab4be91575e05261ba194757df7d8850da663e939757e63b55cd" }
+sdist = { hash = "sha256:709797c924890cd99613ddd576a0230573b9108349ff595b2d1fcf68bf31e7a9" }
 
 [package.metadata]
 requires-dist = [
