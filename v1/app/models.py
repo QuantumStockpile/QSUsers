@@ -16,7 +16,7 @@ class User(ExtendedAbstractModel):
     is_active = fields.BooleanField()
 
     role: fields.ForeignKeyRelation["Role"] = fields.ForeignKeyField(
-        "models.Role", "role"
+        "models.Role", "users"
     )
 
     class Meta:  # type: ignore
@@ -25,6 +25,8 @@ class User(ExtendedAbstractModel):
 
 class Role(ExtendedAbstractModel):
     description = fields.CharField(24)
+
+    users: fields.ReverseRelation[User]
 
     class Meta:  # type: ignore
         table = "roles"

@@ -202,7 +202,7 @@ wheels = [
 
 [[package]]
 name = "ms-core"
-version = "0.1.6"
+version = "0.1.8"
 source = { url = "https://github.com/HexChap/MSCore/archive/master.zip" }
 dependencies = [
     { name = "fastapi" },
@@ -210,14 +210,14 @@ dependencies = [
     { name = "multimethod" },
     { name = "tortoise-orm", extra = ["asyncpg"] },
 ]
-sdist = { hash = "sha256:709797c924890cd99613ddd576a0230573b9108349ff595b2d1fcf68bf31e7a9" }
+sdist = { hash = "sha256:a8c25f769aaa82545200138b422524fb5253ef3938e34eb986b3bd164c1b7d0d" }
 
 [package.metadata]
 requires-dist = [
-    { name = "fastapi", specifier = "~=0.112.2" },
-    { name = "makefun", specifier = "~=1.15.4" },
-    { name = "multimethod", specifier = "~=1.12" },
-    { name = "tortoise-orm", extras = ["asyncpg"], specifier = "~=0.21.6" },
+    { name = "fastapi", specifier = ">=0.112.2" },
+    { name = "makefun", specifier = ">=1.15.4" },
+    { name = "multimethod", specifier = ">=1.12" },
+    { name = "tortoise-orm", extras = ["asyncpg"], specifier = ">=0.21.6" },
 ]
 
 [[package]]
