@@ -14,7 +14,7 @@ UserSchema = pydantic_model_creator(User)
 
 
 class RolePayload(BaseModel):
-    description: str
+    name: str
 
 
 RoleSchema = pydantic_model_creator(Role)
@@ -34,6 +34,7 @@ class TokenSchema(BaseModel):
     access_token: str
     refresh_token: str
     token_type: str
+    scopes: list[str] | None = None
 
 
 class RefreshTokenSchema(BaseModel):
@@ -42,3 +43,7 @@ class RefreshTokenSchema(BaseModel):
 
 class TokenIntrospectionRequest(BaseModel):
     token: str
+
+
+class PermissionCheckRequest(BaseModel):
+    scope: str

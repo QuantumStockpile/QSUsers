@@ -42,6 +42,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
+        print(token, SECRET_KEY, ALGORITHM)
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         if payload.get("token_type") != "access":
             raise credentials_exception
@@ -69,12 +70,28 @@ async def get_current_active_user(
     return current_user
 
 
-def require_role(required_role_desc: str):
-    async def role_checker(user: User = Depends(get_current_active_user)):
-        if (await user.role).description != required_role_desc:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions"
-            )
-        return user
+def require_scopes(*scopes: str):
+    """Dependency factory for requiring specific scopes"""
 
-    return role_checker
+    def dependency(
+        current_user: Annotated[User, Security(get_current_user, scopes=list(scopes))],
+    ) -> User:
+        return current_user
+
+    return dependency
+
+
+def require_role(role: str):
+    """Enhanced role dependency that also validates scopes"""
+
+    async def dependency(
+        current_user: Annotated[User, Security(get_current_user)],
+    ) -> User:
+        user_role = await current_user.role
+        if user_role.name != role:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail="Not enough permissions"
+            )
+        return current_user
+
+    return dependency

@@ -11,12 +11,12 @@ class ExtendedAbstractModel(AbstractModel):
 
 class User(ExtendedAbstractModel):
     username = fields.TextField()
-    email = fields.TextField()
+    email = fields.CharField(max_length=255, unique=True)
     password_hash = fields.TextField()
     is_active = fields.BooleanField()
 
-    role: fields.ForeignKeyRelation["Role"] = fields.ForeignKeyField(
-        "models.Role", "role"
+    roles: fields.ManyToManyRelation["Role"] = fields.ManyToManyField(
+        "models.Role", related_name="users", through="user_roles"
     )
 
     class Meta:  # type: ignore
@@ -24,7 +24,9 @@ class User(ExtendedAbstractModel):
 
 
 class Role(ExtendedAbstractModel):
-    description = fields.CharField(24)
+    name = fields.CharField(24)
+
+    users: fields.ManyToManyRelation[User]
 
     class Meta:  # type: ignore
         table = "roles"

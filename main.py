@@ -5,6 +5,7 @@ import uvicorn as uvicorn
 from fastapi import FastAPI
 from tortoise.contrib.fastapi import register_tortoise
 
+from v1.app.role_scopes import RoleScopes
 from v1.app.schemas import UserPayload
 from v1.settings import settings, logger
 from v1.app import UserCRUD, Role
@@ -69,15 +70,13 @@ include_routers(application)
 
 @application.on_event("startup")  # if using RegisterTortoise
 async def seed():
-    roles = ["user", "admin"]
+    roles = RoleScopes.build_all_role_scopes().keys()
     admin = {"username": "admin", "email": "admin@example.com", "password": "admin123"}
 
     for r in roles:
-        role, created = await Role.get_or_create(
-            description=r, defaults={"description": r}
-        )
+        role, created = await Role.get_or_create(name=r, defaults={"name": r})
         if created:
-            logger.info(f"Seeded default role: {role.description}")
+            logger.info(f"Seeded default role: {role.name}")
 
     if settings.is_prod:
         return
