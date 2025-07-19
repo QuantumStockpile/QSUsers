@@ -38,3 +38,7 @@ class TokenSchema(BaseModel):
 
 class RefreshTokenSchema(BaseModel):
     refresh_token: str
+
+
+class TokenIntrospectionRequest(BaseModel):
+    token: str

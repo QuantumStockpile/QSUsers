@@ -1,7 +1,7 @@
 from datetime import timedelta
 from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, Response, Depends, status
+from fastapi import APIRouter, HTTPException, Request, Response, Depends, status
 from fastapi.params import Security
 from fastapi.security import OAuth2PasswordRequestForm
 import jwt
@@ -53,6 +53,23 @@ async def login_for_token(
     return schemas.TokenSchema(
         access_token=access_token, refresh_token=refresh_token, token_type="bearer"
     )
+
+
+@router.post("/introspect")
+async def introspect_token(
+    request: Request, token_data: schemas.TokenIntrospectionRequest
+):
+    try:
+        payload = jwt.decode(
+            token_data.token,
+            settings.security.secret_key,
+            algorithms=[settings.security.algorithm],
+        )
+        return {"active": True, "payload": payload}
+    except jwt.ExpiredSignatureError:
+        return {"active": False, "error": "expired"}
+    except jwt.InvalidTokenError:
+        return {"active": False, "error": "invalid"}
 
 
 @router.post("/refresh")
