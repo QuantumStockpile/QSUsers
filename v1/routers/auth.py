@@ -94,7 +94,7 @@ async def refresh_token(
             raise HTTPException(status_code=404, detail="User not found")
 
         access_token = auth.create_access_token(
-            data={"sub": user.email},
+            data={"sub": user.email, "role": (await user.role).id},
             expires_delta=timedelta(
                 minutes=settings.security.access_token_expire_minutes
             ),
