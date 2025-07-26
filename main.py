@@ -4,6 +4,7 @@ import os
 import uvicorn as uvicorn
 from fastapi import FastAPI
 from tortoise.contrib.fastapi import register_tortoise
+from fastapi.middleware.cors import CORSMiddleware
 
 from v1.app.schemas import UserPayload
 from v1.settings import settings, logger
@@ -14,6 +15,14 @@ application = FastAPI(
     title=settings.api.title,
     version=f"{settings.api.version}.{settings.api.build_version}",
     root_path="/v1",
+)
+
+application.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 TORTOISE_CONFIG = {
