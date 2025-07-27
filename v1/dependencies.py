@@ -6,7 +6,7 @@ from fastapi.security import OAuth2PasswordBearer
 import jwt
 
 from v1.app.auth import oauth2_scheme
-from v1.settings import settings
+from v1.settings import settings, logger
 from v1.app import UserCRUD, User
 
 
@@ -71,7 +71,9 @@ async def get_current_active_user(
 
 def require_role(required_role_desc: str):
     async def role_checker(user: User = Depends(get_current_active_user)):
-        if (await user.role).description != required_role_desc:
+        name = (await user.role).description
+
+        if name != required_role_desc and name != "admin":
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions"
             )

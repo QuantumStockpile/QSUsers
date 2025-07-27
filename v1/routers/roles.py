@@ -36,6 +36,6 @@ async def elevate_user(
 
 @router.get("/")
 async def get_all(
-    _: Annotated[Any, Depends(require_role("admin"))],
+    _: Annotated[Any, Depends(require_role("user"))],
 ) -> list[schemas.RoleSchema]:
     return await RoleCRUD.get_all()
